@@ -54,17 +54,20 @@ export default function ProductBooking() {
         productId,
       });
       if (response.status === 201) {
-        alert("Product booked successfully!");
+        alert("✅ Product booked successfully! Your booking is pending approval.");
         // Refresh bookings after successful booking
         const res = await axios.get("/api/farmer/bookings");
         setBookings(Array.isArray(res.data) ? res.data : []);
+        // Refresh products list to show updated availability
+        const productsRes = await axios.get("/api/krishikendra/products");
+        setProducts(Array.isArray(productsRes.data.products) ? productsRes.data.products : []);
         // Switch to bookings tab
         setActiveTab("bookings");
       }
     } catch (error) {
       console.error("Error booking product:", error);
-      const errorMessage = error.response?.data?.message || "Error booking product";
-      alert(errorMessage);
+      const errorMessage = error.response?.data?.message || "Error booking product. Please try again.";
+      alert("❌ " + errorMessage);
     } finally {
       setLoading(false);
     }

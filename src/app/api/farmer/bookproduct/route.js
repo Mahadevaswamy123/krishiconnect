@@ -18,6 +18,14 @@ export async function POST(req) {
       return NextResponse.json({ message: "Only farmers can book products" }, { status: 403 });
     }
 
+    // Check if session has user ID (critical for booking)
+    if (!session.user.id) {
+      console.error("Session missing user ID:", session);
+      return NextResponse.json({ 
+        message: "Session error: Please log out and log back in to continue" 
+      }, { status: 400 });
+    }
+
     // Ensure body is parsed
     const body = await req.json();
     const { productId } = body;

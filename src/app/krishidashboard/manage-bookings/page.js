@@ -45,12 +45,13 @@ export default function ManageBookings() {
           booking.id === id ? { ...booking, status } : booking
         );
         setBookings(updatedBookings);
-        alert(`Booking ${status.toLowerCase()} successfully!`);
+        const statusEmoji = status === "Approved" ? "✅" : "❌";
+        alert(`${statusEmoji} Booking ${status.toLowerCase()} successfully!`);
       }
     } catch (error) {
       console.error("Error updating booking status:", error);
-      const errorMessage = error.response?.data?.message || "Error updating booking status";
-      alert(errorMessage);
+      const errorMessage = error.response?.data?.message || "Error updating booking status. Please try again.";
+      alert("❌ " + errorMessage);
     } finally {
       setLoading(false);
     }
