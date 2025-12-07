@@ -1,96 +1,49 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 
-export default function ResetPassword() {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function ForgotPassword() {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  const params = useParams();
-  const token = params?.token;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!token) {
-      setError("Invalid reset link");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     setLoading(true);
     setError("");
+    setSuccess(false);
 
     try {
-      const res = await axios.post("/api/auth/reset-password", {
-        token,
-        password,
-      });
-
+      const res = await axios.post("/api/auth/forgot-password", { email });
+      
       if (res.status === 200) {
         setSuccess(true);
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push("/signin");
-        }, 3000);
+        setEmail("");
       }
     } catch (err) {
       setError(
         err.response?.data?.message || 
-        "Failed to reset password. The link may be invalid or expired."
+        "Failed to send reset email. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
-              Invalid Reset Link
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              This password reset link is invalid or has expired.
-            </p>
-            <Link
-              href="/reset-request"
-              className="inline-block bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-            >
-              Request New Link
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Reset Your Password
+            Forgot Password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Enter your new password below
+            Enter your email address and we'll send you a link to reset your password.
           </p>
         </div>
 
@@ -113,12 +66,20 @@ export default function ResetPassword() {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
-                  Password reset successful!
+                  Email sent successfully!
                 </h3>
                 <div className="mt-2 text-sm text-green-700 dark:text-green-300">
                   <p>
-                    Your password has been reset. Redirecting to sign in page...
+                    Check your email for a password reset link. The link will expire in 1 hour.
                   </p>
+                </div>
+                <div className="mt-4">
+                  <Link
+                    href="/signin"
+                    className="text-sm font-medium text-green-600 hover:text-green-500 dark:text-green-400"
+                  >
+                    Back to Sign In
+                  </Link>
                 </div>
               </div>
             </div>
@@ -151,38 +112,21 @@ export default function ResetPassword() {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="rounded-md shadow-sm -space-y-px">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  New Password
+                <label htmlFor="email" className="sr-only">
+                  Email address
                 </label>
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  placeholder="Enter new password (min. 6 characters)"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  placeholder="Confirm your new password"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  placeholder="Email address"
                 />
               </div>
             </div>
@@ -193,7 +137,7 @@ export default function ResetPassword() {
                 disabled={loading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? "Sending..." : "Send Reset Link"}
               </button>
             </div>
 
