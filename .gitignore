@@ -38,3 +38,4 @@ next-env.d.ts
 
 # prisma migrations
 prisma/migrations/
+PASSWORD_RESET_GUIDE.md
